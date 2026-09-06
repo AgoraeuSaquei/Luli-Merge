@@ -130,7 +130,7 @@ export default function Home() {
   const createDrawOptions = () => { const shuffled = [...STICKERS].sort(() => Math.random() - 0.5); setDrawOptions(shuffled.slice(0, 3)); };
   const generateSticker = () => { if (album.goldenCards > 0) saveAlbum({ ...album, goldenCards: album.goldenCards - 1 }); else if (album.fragments >= 3) saveAlbum({ ...album, fragments: album.fragments - 3 }); else return; createDrawOptions(); };
   const chooseSticker = (sticker: typeof STICKERS[number]) => { const repeated = album.owned.includes(sticker.id); const next = repeated ? { ...album, fragments: album.fragments + 1 } : { ...album, owned: [...album.owned, sticker.id] }; saveAlbum(next); setDrawOptions([]); setRevealedSticker(sticker); announce(repeated ? `${sticker.name} repetido: +1 fragmento.` : `Sticker conquistado: ${sticker.name}!`); };
-  const applyTestCode = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); if (testCode.toLowerCase() === "christiano") { saveAlbum({ ...album, goldenCards: album.goldenCards + 50 }); announce("Teste ativado: +50 Cartas Douradas!"); setTestCode(""); } };
+  const applyTestCode = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); if (testCode.toLowerCase() === "christiano") { saveAlbum({ ...album, goldenCards: album.goldenCards + 12 }); announce("Teste ativado: +12 Cartas Douradas!"); setTestCode(""); } };
 
   useEffect(() => {
     if (!state) return;
