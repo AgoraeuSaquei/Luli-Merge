@@ -101,3 +101,4 @@ h1 em, h2 em { color: #F05D5E; font-style: normal; }
 .game-layout .stamp-label { display: none; }
 .game-layout .board::after { content: ''; position: absolute; z-index: 0; top: var(--game-logo-top); left: var(--game-logo-left); width: var(--game-logo-width); height: var(--game-logo-height); border-radius: 0; background: url('../assets/logo_luli_merge.png') center / contain no-repeat; opacity: .3; transform: translateX(-50%) rotate(var(--game-logo-rotation)); filter: none; pointer-events: none; }
 .game-layout .board canvas { position: relative; z-index: 1; }
+/* GitHub Pages deployment check */
