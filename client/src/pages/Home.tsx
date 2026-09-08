@@ -130,6 +130,7 @@ function MissionDrawer({ missions, onClose }: { missions: MissionState; onClose:
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null); const gameRef = useRef<FruitGame | null>(null); const frameRef = useRef<number>(0); const previewX = useRef(180); const previewY = useRef(42); const missionOpenedFromRunning = useRef(false);
   const stateRef = useRef<GameSnapshot | null>(null);
+  const musicRef = useRef<HTMLAudioElement | null>(null);
   const [screen, setScreen] = useState<"menu" | "loading" | "game" | "help" | "settings" | "album" | "wardrobe">("menu"); const [state, setState] = useState<GameSnapshot | null>(null); const [sound, setSound] = useState(() => localStorage.getItem("luli-sound") !== "off"); const [effects, setEffects] = useState(true); const [album, setAlbum] = useState<AlbumProgress>(() => readAlbum()); const [missions, setMissions] = useState<MissionState>(() => readMissionState()); const [missionsOpen, setMissionsOpen] = useState(false);
   const [rewardNotice, setRewardNotice] = useState<string | null>(null);
   const [drawOptions, setDrawOptions] = useState<typeof STICKERS>([]);
@@ -145,6 +146,35 @@ export default function Home() {
   const [flash, setFlash] = useState<{ x: number; y: number; text: string } | null>(null);
 
   useEffect(() => { stateRef.current = state; }, [state]);
+
+  useEffect(() => {
+    const music = new Audio(asset("luli.mp3"));
+    music.loop = true;
+    music.volume = 0.35;
+    musicRef.current = music;
+
+    return () => {
+      music.pause();
+      music.currentTime = 0;
+      musicRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const music = musicRef.current;
+    if (!music) return;
+
+    music.muted = !sound;
+    if (!sound) {
+      music.pause();
+      return;
+    }
+
+    music.play().catch(() => {
+      // O navegador libera a música depois de um clique do jogador.
+    });
+    localStorage.setItem("luli-sound", "on");
+  }, [sound]);
   useEffect(() => { equippedSkinsRef.current = equippedSkins; localStorage.setItem("luli-equipped-skins", JSON.stringify(equippedSkins)); }, [equippedSkins]);
   useEffect(() => { localStorage.setItem("luli-owned-skins", JSON.stringify(ownedSkins)); }, [ownedSkins]);
 
@@ -231,7 +261,10 @@ export default function Home() {
   }, [screen]);
 
   useEffect(() => { gameRef.current?.setAudio(sound); localStorage.setItem("luli-sound", sound ? "on" : "off"); }, [sound]);
-  const start = () => { setScreen("loading"); };
+  const start = () => {
+    if (sound) musicRef.current?.play().catch(() => {});
+    setScreen("loading");
+  };
   const leaveGame = () => { if (window.confirm("Todo o progresso desta partida será encerrado. Voltar ao menu?")) { gameRef.current?.reset(); setScreen("menu"); } };
   const restartSave = () => { if (!window.confirm("Apagar todo o progresso do álbum, missões, skins e recorde?")) return; localStorage.removeItem("luli-album"); localStorage.removeItem("luli-best"); localStorage.removeItem(MISSION_STORAGE_KEY); localStorage.removeItem("luli-owned-skins"); localStorage.removeItem("luli-equipped-skins"); setAlbum(EMPTY_ALBUM); setOwnedSkins([]); setEquippedSkins({}); const freshMissions = createNextMissionState(missions); saveMissions(freshMissions); setMissionsOpen(false); gameRef.current?.reset(); setState(null); announce("Novo save criado."); };
   const pointerPosition = (event: React.PointerEvent<HTMLCanvasElement>) => {
