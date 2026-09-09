@@ -1,0 +1,10 @@
+[33m46b51e3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m test: trigger github pages deployment
+[33mfa07316[m fix: configure github pages environment
+[33m9f03af5[m fix: corrigir versão do pnpm
+[33maa57ee6[m fix: corrigir deploy do GitHub Pages
+[33macbaec5[m fix: corrigir pnpm no deploy
+[33m50b6c4e[m fix: corrigir pnpm no deploy
+[33m64d8241[m Configura deploy automatico no GitHub Pages
+[33m6652197[m Adiciona skins e melhorias no jogo
+[33md3b0006[m Atualiza recompensa do codigo de teste
+[33m0bdde86[m Add game image assets

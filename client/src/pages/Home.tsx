@@ -25,6 +25,7 @@ const STICKERS = [
   { id: 15, tier: "OURO", name: "A DONA DO JOGO", image: asset("sticker_15_a_dona_do_jogo.png") },
   { id: 16, tier: "OURO", name: "TOTO PARA SEMPRE", image: asset("sticker_16_toto_para_sempre.png") },
   { id: 17, tier: "OURO", name: "LULI CLT", image: asset("sticker_17_luli_clt.png") },
+  { id: 18, tier: "OURO", name: "ALMA IVAN DAMI", image: asset("sticker_18_alma_ivan_dami.png") },
 ];
 const FRAGMENTS_PER_GOLDEN_CARD = 3;
 const SKIN_COST = 5;
@@ -34,6 +35,7 @@ const SKINS = {
   berry: [
     { id: "berry-ruby", name: "Jabuticaba de Ruby", image: asset("skin-jabuticaba-de-ruby.png") },
     { id: "berry-eternal-love", name: "Jabuticaba Amor Eterno", image: asset("skin-jabuticaba-amor-eterno.png") },
+    { id: "berry-eldorado", name: "Jabuticaba Eldorado", image: asset("skin-jabuticaba-eldorado.png") },
   ],
   cherry: [
     { id: "cherry-candycore", name: "Uva Candycore", image: asset("skin-uva-cadycore.png") },
@@ -44,8 +46,13 @@ const SKINS = {
     { id: "strawberry-candycore", name: "Moranguito Candycore", image: asset("skin-moranguito-candycore.png") },
     { id: "strawberry-alien", name: "Moranguito Alien Fruta", image: asset("alien-fruta-moranguito.png") },
     { id: "strawberry-disney", name: "Morango Disney", image: asset("skin-morango-disney.png") },
+    { id: "strawberry-ladybug-princess", name: "Moranguito Joaninha Princesa", image: asset("skin-moranguito-joaninha-princesa.png") },
   ],
-  plum: [{ id: "plum-scream-night", name: "Ameixa Noite do Grito", image: asset("ameixa-noite-do-grito.png") }],
+  plum: [
+    { id: "plum-scream-night", name: "Ameixa Noite do Grito", image: asset("ameixa-noite-do-grito.png") },
+    { id: "plum-eternal-love", name: "Ameixa Amor Eterno", image: asset("skin-ameixa-amor-eterno.png") },
+    { id: "plum-oni", name: "Ameixa Oni", image: asset("skin-ameixa-oni.png") },
+  ],
   orange: [
     { id: "orange-summer", name: "Laranja Curtindo Verão", image: asset("skin-laranja-curtindo-verao-final.png") },
     { id: "orange-patricinha", name: "Laranja Patricinha", image: asset("skin-laranja-patricinha.png") },
@@ -55,6 +62,7 @@ const SKINS = {
   apple: [
     { id: "apple-metallic", name: "Maçã Futurística Metálica", image: asset("skin-maca-futuristica-metalica.png") },
     { id: "apple-alien", name: "Maçã Alien Fruta", image: asset("alien-fruta-maca.png") },
+    { id: "apple-enchanted-owl", name: "Maçã Corujinha Encantada", image: asset("skin-maca-corujinha-encantada.png") },
   ],
   peach: [
     { id: "peach-princess", name: "Pêssego Princesa Fabulosa", image: asset("skin-pessego-princesa-fabulosa.png") },
@@ -64,8 +72,15 @@ const SKINS = {
   melon: [
     { id: "melon-candycore", name: "Melão Candycore", image: asset("skin-melao-candycore.png") },
     { id: "melon-alien", name: "Melão Alien Fruta", image: asset("alien-fruta-melao.png") },
+    { id: "melon-oni", name: "Melão Oni", image: asset("skin-melão-oni.png") },
   ],
-  pineapple: [{ id: "pineapple-scream-night", name: "Ananás Noite do Grito", image: asset("skin-abacaxi-noite-do-grito.png") }],
+  pineapple: [
+    { id: "pineapple-scream-night", name: "Ananás Noite do Grito", image: asset("skin-abacaxi-noite-do-grito.png") },
+    { id: "pineapple-eldorado", name: "Abacaxi Eldorado", image: asset("skin-abacaxi-eldorado.png") },
+  ],
+  coconut: [
+    { id: "coconut-ancestral-dragon", name: "Coco Dragão Ancestral", image: asset("skin-coco-dragão-ancestral.png") },
+  ],
 } satisfies Partial<Record<string, SkinDefinition[]>>;
 type SkinId = string;
 const getFruitSkins = (fruitId: string) => SKINS[fruitId as keyof typeof SKINS] ?? [];
