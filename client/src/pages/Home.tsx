@@ -86,9 +86,39 @@ type SkinId = string;
 const getFruitSkins = (fruitId: string) => SKINS[fruitId as keyof typeof SKINS] ?? [];
 const readEquippedSkins = (): Partial<Record<SkinId, string>> => { try { return JSON.parse(localStorage.getItem("luli-equipped-skins") || "{}"); } catch { return {}; } };
 const readOwnedSkins = (): SkinId[] => { try { return JSON.parse(localStorage.getItem("luli-owned-skins") || "[]"); } catch { return []; } };
-type AlbumProgress = { points: number; goldenCards: number; fragments: number; owned: number[] };
-const EMPTY_ALBUM: AlbumProgress = { points: 0, goldenCards: 0, fragments: 0, owned: [] };
-const readAlbum = (): AlbumProgress => { try { const saved = JSON.parse(localStorage.getItem("luli-album") || "{}"); return { ...EMPTY_ALBUM, ...saved, goldenCards: saved.goldenCards ?? saved.vouchers ?? 0 }; } catch { return EMPTY_ALBUM; } };
+type AlbumProgress = {
+  points: number;
+  goldenCards: number;
+  fragments: number;
+  owned: number[];
+  repeatedStickers: number;
+  rewardedForTen: boolean;
+  rewardedForAll: boolean;
+};
+const EMPTY_ALBUM: AlbumProgress = {
+  points: 0,
+  goldenCards: 0,
+  fragments: 0,
+  owned: [],
+  repeatedStickers: 0,
+  rewardedForTen: false,
+  rewardedForAll: false,
+};
+const readAlbum = (): AlbumProgress => {
+  try {
+    const saved = JSON.parse(localStorage.getItem("luli-album") || "{}");
+    return {
+      ...EMPTY_ALBUM,
+      ...saved,
+      goldenCards: saved.goldenCards ?? saved.vouchers ?? 0,
+      repeatedStickers: saved.repeatedStickers ?? 0,
+      rewardedForTen: saved.rewardedForTen ?? false,
+      rewardedForAll: saved.rewardedForAll ?? false,
+    };
+  } catch {
+    return EMPTY_ALBUM;
+  }
+};
 
 function FruitBadge({ fruit, small = false, skinImage }: { fruit: FruitDefinition; small?: boolean; skinImage?: string }) {
   const displayedFruit = fruit.upcoming ?? fruit;
@@ -226,15 +256,56 @@ export default function Home() {
   const saveMissions = (next: MissionState) => { setMissions(next); localStorage.setItem(MISSION_STORAGE_KEY, JSON.stringify(next)); };
   const announce = (message: string) => { setRewardNotice(message); window.setTimeout(() => setRewardNotice(null), 3500); };
   const awardGoldenCard = (progress: AlbumProgress, message: string): AlbumProgress => { const next = { ...progress, goldenCards: progress.goldenCards + 1 }; announce(message); return next; };
-  const createDrawOptions = () => { const shuffled = [...STICKERS].sort(() => Math.random() - 0.5); setDrawOptions(shuffled.slice(0, 3)); };
-  const generateSticker = () => { if (album.goldenCards < 1) return; saveAlbum({ ...album, goldenCards: album.goldenCards - 1 }); createDrawOptions(); };
+  const createDrawOptions = () => {
+    const unowned = STICKERS.filter((sticker) => !album.owned.includes(sticker.id));
+    const shuffledUnowned = [...unowned].sort(() => Math.random() - 0.5);
+    const shuffledAll = [...STICKERS].sort(() => Math.random() - 0.5);
+    const guaranteeCount = album.repeatedStickers >= 2 ? Math.min(2, unowned.length) : 0;
+    const guaranteed = shuffledUnowned.slice(0, guaranteeCount);
+    const remaining = shuffledAll
+      .filter((sticker) => !guaranteed.some((item) => item.id === sticker.id))
+      .slice(0, 3 - guaranteed.length);
+    setDrawOptions([...guaranteed, ...remaining].sort(() => Math.random() - 0.5));
+  };
+  const generateSticker = () => {
+    if (album.goldenCards < 1) return;
+    saveAlbum({ ...album, goldenCards: album.goldenCards - 1 });
+    createDrawOptions();
+  };
   const convertFragments = () => { if (album.fragments < FRAGMENTS_PER_GOLDEN_CARD) return; saveAlbum({ ...album, fragments: album.fragments - FRAGMENTS_PER_GOLDEN_CARD, goldenCards: album.goldenCards + 1 }); announce("Conversão concluída: +1 Carta Dourada!"); };
   const allSkins = album.owned.length >= STICKERS_REQUIRED_FOR_SKIN ? FRUITS.flatMap((fruit) => getFruitSkins(fruit.id)) : [];
   const createSkinDrawOptions = () => [...allSkins].filter((skin) => !ownedSkins.includes(skin.id)).sort(() => Math.random() - 0.5).slice(0, 3);
   const generateSkin = () => { if (album.owned.length < STICKERS_REQUIRED_FOR_SKIN || album.goldenCards < SKIN_COST || !allSkins.some((skin) => !ownedSkins.includes(skin.id))) return; saveAlbum({ ...album, goldenCards: album.goldenCards - SKIN_COST }); setSkinDrawOptions(createSkinDrawOptions()); };
   const chooseSkin = (skin: SkinDefinition) => { if (!ownedSkins.includes(skin.id)) setOwnedSkins([...ownedSkins, skin.id]); setSkinDrawOptions([]); setWonSkin(skin); };
   const equipOwnedSkin = (fruitId: string, skin: SkinDefinition) => { setEquippedSkins({ ...equippedSkins, [fruitId]: equippedSkins[fruitId] === skin.image ? undefined : skin.image }); announce(equippedSkins[fruitId] === skin.image ? `${skin.name} retirada.` : `${skin.name} equipada!`); };
-  const chooseSticker = (sticker: typeof STICKERS[number]) => { const repeated = album.owned.includes(sticker.id); const next = repeated ? { ...album, fragments: album.fragments + 1 } : { ...album, owned: [...album.owned, sticker.id] }; saveAlbum(next); setDrawOptions([]); setRevealedSticker(sticker); announce(repeated ? `${sticker.name} repetido: +1 fragmento.` : `Sticker conquistado: ${sticker.name}!`); };
+  const chooseSticker = (sticker: typeof STICKERS[number]) => {
+    const repeated = album.owned.includes(sticker.id);
+    const owned = repeated ? album.owned : [...album.owned, sticker.id];
+    const nextRepeatedStickers = repeated ? album.repeatedStickers + 1 : 0;
+    const reachedTen = owned.length >= 10 && !album.rewardedForTen;
+    const completedAll = owned.length >= STICKERS.length && !album.rewardedForAll;
+    const bonusCards = (reachedTen ? 10 : 0) + (completedAll ? 20 : 0);
+    const next: AlbumProgress = {
+      ...album,
+      owned,
+      fragments: repeated ? album.fragments + 1 : album.fragments,
+      repeatedStickers: nextRepeatedStickers,
+      rewardedForTen: album.rewardedForTen || reachedTen,
+      rewardedForAll: album.rewardedForAll || completedAll,
+      goldenCards: album.goldenCards + bonusCards,
+    };
+
+    saveAlbum(next);
+    setDrawOptions([]);
+    setRevealedSticker(sticker);
+
+    const messages = [
+      repeated ? `${sticker.name} repetido: +1 fragmento.` : `Sticker conquistado: ${sticker.name}!`,
+      reachedTen ? "Coleção com 10 stickers: +10 Cartas Douradas!" : "",
+      completedAll ? "Álbum completo: +20 Cartas Douradas!" : "",
+    ].filter(Boolean);
+    announce(messages.join(" "));
+  };
   const applyTestCode = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); if (testCode.toLowerCase() === "christiano") { saveAlbum({ ...album, goldenCards: album.goldenCards + 12 }); announce("Teste ativado: +12 Cartas Douradas!"); setTestCode(""); } };
 
   useEffect(() => {
