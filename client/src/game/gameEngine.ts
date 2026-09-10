@@ -61,7 +61,7 @@ export class FruitGame {
     if (this.gameOverValue || this.pausedValue) return;
 
     const now = performance.now();
-    const cooldownMs = 360;
+    const cooldownMs = 700;
     if (now - this.lastDropAt < cooldownMs) return;
     this.lastDropAt = now;
 
