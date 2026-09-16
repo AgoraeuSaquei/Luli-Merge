@@ -26,6 +26,9 @@ const STICKERS = [
   { id: 16, tier: "OURO", name: "TOTO PARA SEMPRE", image: asset("sticker_16_toto_para_sempre.png") },
   { id: 17, tier: "OURO", name: "LULI CLT", image: asset("sticker_17_luli_clt.png") },
   { id: 18, tier: "OURO", name: "ALMA IVAN DAMI", image: asset("sticker_18_alma_ivan_dami.png") },
+  { id: 19, tier: "OURO", name: "ONDE ELE ESTÁ?", image: asset("sticker_19_Onde_ele_está.png") },
+  { id: 20, tier: "OURO", name: "UMA PISTA", image: asset("sticker_20_umapista.png") },
+  { id: 21, tier: "OURO", name: "OLHA QUEM CHEGOU", image: asset("sticker_21_olhaquemchegou.png") },
 ];
 const FRAGMENTS_PER_GOLDEN_CARD = 3;
 const SKIN_COST = 5;
