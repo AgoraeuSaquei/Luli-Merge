@@ -38,6 +38,7 @@ export class FruitGame {
   private onMergeListeners = new Set<(x: number, y: number, level: number, combo: number, score: number) => void>();
   private onAbilityListeners = new Set<(x: number, y: number, text: string) => void>();
   private audioEnabled = true;
+  private effectsVolume = 0.7;
   private gameOverValue = false;
   private pausedValue = false;
   private lastDropAt = 0;
@@ -67,6 +68,7 @@ export class FruitGame {
   }
 
   setAudio(enabled: boolean) { this.audioEnabled = enabled; }
+  setEffectsVolume(volume: number) { this.effectsVolume = Math.max(0, Math.min(1, volume)); }
   subscribe(listener: (snapshot: GameSnapshot) => void) { this.listeners.add(listener); listener(this.snapshot()); return () => this.listeners.delete(listener); }
   onMerge(listener: (x: number, y: number, level: number, combo: number, score: number) => void) { this.onMergeListeners.add(listener); return () => this.onMergeListeners.delete(listener); }
   onAbility(listener: (x: number, y: number, text: string) => void) { this.onAbilityListeners.add(listener); return () => this.onAbilityListeners.delete(listener); }
@@ -158,7 +160,7 @@ export class FruitGame {
   }
 
   private addAbilityParticles(x: number, y: number, color: string, accent: string) { for (let i = 0; i < 18; i++) this.particles.push({ x, y, color: i % 2 ? color : accent, life: 1.2, size: 3 + Math.random() * 5, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6 }); }
-  private beep(level: number) { try { const ctx = new AudioContext(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = "sine"; osc.frequency.value = GAME_CONFIG.audio.baseFrequency + level * GAME_CONFIG.audio.levelStep; gain.gain.setValueAtTime(0.045, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + GAME_CONFIG.audio.mergeDuration); osc.connect(gain).connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + GAME_CONFIG.audio.mergeDuration); } catch { /* áudio é opcional */ } }
+  private beep(level: number) { try { if (this.effectsVolume <= 0) return; const ctx = new AudioContext(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = "sine"; osc.frequency.value = GAME_CONFIG.audio.baseFrequency + level * GAME_CONFIG.audio.levelStep; gain.gain.setValueAtTime(0.045 * this.effectsVolume, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + GAME_CONFIG.audio.mergeDuration); osc.connect(gain).connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + GAME_CONFIG.audio.mergeDuration); } catch { /* áudio é opcional */ } }
   getBodies() { return this.bodies; }
   getDangerRatio() { return this.dangerTimer > 0 ? 1 - (this.dangerTimer / GAME_CONFIG.danger.maxTimeMs) : 0; }
 }

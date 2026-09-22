@@ -13,7 +13,7 @@ export type StoryProgress = {
 };
 
 export const STORY_STORAGE_KEY = "luli-story";
-export const STORY_PAGE_PRICES = [5, 5, 5, 6, 7, 8, 15, 15, 15];
+export const STORY_PAGE_PRICES = [5, 5, 5, 6, 7, 7, 8, 8, 15];
 
 export const STORY_MISSIONS: StoryMission[] = [
   { id: 1, title: "Dois cocos juntos", description: "Tenha 2 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP1.png" },
@@ -70,7 +70,10 @@ export function purchaseStoryPage(progress: StoryProgress, chapter: number): Sto
   if (chapter < 1 || chapter > STORY_MISSIONS.length || progress.completed[chapter - 1] || progress.purchased[chapter - 1]) return progress;
   const purchased = [...progress.purchased];
   purchased[chapter - 1] = true;
-  const next = { ...progress, purchased };
+  const completed = [...progress.completed];
+  completed[chapter - 1] = true;
+  const unlockedChapter = Math.max(progress.unlockedChapter, Math.min(STORY_MISSIONS.length, chapter + 1));
+  const next = { ...progress, activeChapter: null, unlockedChapter, completed, purchased };
   saveStoryProgress(next);
   return next;
 }
