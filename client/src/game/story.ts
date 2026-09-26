@@ -1,8 +1,13 @@
+export type StoryMissionKind = "score" | "simultaneous" | "skins" | "stickers" | "combo";
+
 export type StoryMission = {
   id: number;
   title: string;
   description: string;
   image: string;
+  kind?: StoryMissionKind;
+  target?: number;
+  level?: number;
 };
 
 export type StoryProgress = {
@@ -13,18 +18,40 @@ export type StoryProgress = {
 };
 
 export const STORY_STORAGE_KEY = "luli-story";
-export const STORY_PAGE_PRICES = [5, 5, 5, 6, 7, 7, 8, 8, 15];
+export const STORY_FINAL_REWARD_KEY = "luli-story-final-reward-27";
+export const STORY_PAGE_PRICES = [
+  5, 5, 5, 6, 7, 8, 15, 15, 15,
+  5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 10, 10, 10, 12, 12, 12,
+];
 
 export const STORY_MISSIONS: StoryMission[] = [
-  { id: 1, title: "Dois cocos juntos", description: "Tenha 2 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP1.png" },
-  { id: 2, title: "Três cocos juntos", description: "Tenha 3 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP2.png" },
-  { id: 3, title: "Grande pontuação", description: "Faça 80.000 pontos em uma única partida.", image: "HQCAP3.png" },
-  { id: 4, title: "Fruteira estilosa", description: "Jogue uma partida com uma skin equipada em todas as frutas e faça pelo menos 1.500 pontos.", image: "HQCAP4.png" },
-  { id: 5, title: "Álbum completo", description: "Conquiste todos os stickers disponíveis no álbum.", image: "HQCAP5.png" },
-  { id: 6, title: "Mais cocos", description: "Tenha 2 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP6.png" },
-  { id: 7, title: "Cocos por toda parte", description: "Tenha 3 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP7.png" },
-  { id: 8, title: "Laranjada", description: "Tenha 5 laranjas simultaneamente no mesmo tabuleiro.", image: "HQCAP8.png" },
-  { id: 9, title: "Mestre da fruteira", description: "Faça 100.000 pontos em uma única partida.", image: "HQCAP9.png" },
+  { id: 1, title: "Dois cocos juntos", description: "Tenha 2 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP1.png", kind: "simultaneous", target: 2, level: 10 },
+  { id: 2, title: "Três cocos juntos", description: "Tenha 3 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP2.png", kind: "simultaneous", target: 3, level: 10 },
+  { id: 3, title: "Grande pontuação", description: "Faça 80.000 pontos em uma única partida.", image: "HQCAP3.png", kind: "score", target: 80000 },
+  { id: 4, title: "Fruteira estilosa", description: "Jogue uma partida com uma skin equipada em todas as frutas e faça pelo menos 1.500 pontos.", image: "HQCAP4.png", kind: "skins", target: 1500 },
+  { id: 5, title: "Álbum completo", description: "Conquiste todos os stickers disponíveis no álbum.", image: "HQCAP5.png", kind: "stickers" },
+  { id: 6, title: "Mais cocos", description: "Tenha 2 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP6.png", kind: "simultaneous", target: 2, level: 10 },
+  { id: 7, title: "Cocos por toda parte", description: "Tenha 3 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP7.png", kind: "simultaneous", target: 3, level: 10 },
+  { id: 8, title: "Laranjada", description: "Tenha 5 laranjas simultaneamente no mesmo tabuleiro.", image: "HQCAP8.png", kind: "simultaneous", target: 5, level: 5 },
+  { id: 9, title: "Mestre da fruteira", description: "Faça 100.000 pontos em uma única partida.", image: "HQCAP9.png", kind: "score", target: 100000 },
+  { id: 10, title: "Primeiro passo", description: "Faça 6.000 pontos em uma única partida.", image: "HQCAP10.png", kind: "score", target: 6000 },
+  { id: 11, title: "Cocos resistentes", description: "Tenha 2 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP11.png", kind: "simultaneous", target: 2, level: 10 },
+  { id: 12, title: "Ritmo crescente", description: "Faça 18.000 pontos em uma única partida.", image: "HQCAP12.png", kind: "score", target: 18000 },
+  { id: 13, title: "Combo saboroso", description: "Alcance um combo de pelo menos 5 fusões.", image: "HQCAP13.png", kind: "combo", target: 5 },
+  { id: 14, title: "Luli fashion", description: "Faça 30.000 pontos usando uma skin equipada em todas as frutas.", image: "HQCAP14.png", kind: "skins", target: 30000 },
+  { id: 15, title: "Ponto a ponto", description: "Faça 36.000 pontos em uma única partida.", image: "HQCAP15.png", kind: "score", target: 36000 },
+  { id: 16, title: "Dupla de cocos", description: "Tenha 3 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP16.png", kind: "simultaneous", target: 3, level: 10 },
+  { id: 17, title: "Combo de respeito", description: "Alcance um combo de pelo menos 8 fusões.", image: "HQCAP17.png", kind: "combo", target: 8 },
+  { id: 18, title: "Meio do caminho", description: "Faça 54.000 pontos em uma única partida.", image: "HQCAP18.png", kind: "score", target: 54000 },
+  { id: 19, title: "Coco colossal", description: "Tenha 4 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP19.png", kind: "simultaneous", target: 4, level: 10 },
+  { id: 20, title: "Colecionador", description: "Conquiste pelo menos 15 stickers no álbum.", image: "HQCAP20.png", kind: "stickers", target: 15 },
+  { id: 21, title: "Grande colheita", description: "Faça 72.000 pontos em uma única partida.", image: "HQCAP21.png", kind: "score", target: 72000 },
+  { id: 22, title: "Estilo completo", description: "Faça 78.000 pontos usando uma skin equipada em todas as frutas.", image: "HQCAP22.png", kind: "skins", target: 78000 },
+  { id: 23, title: "Laranjas em festa", description: "Tenha 5 laranjas simultaneamente no mesmo tabuleiro.", image: "HQCAP23.png", kind: "simultaneous", target: 5, level: 5 },
+  { id: 24, title: "Pontuação avançada", description: "Faça 84.000 pontos em uma única partida.", image: "HQCAP24.png", kind: "score", target: 84000 },
+  { id: 25, title: "Combo mestre", description: "Alcance um combo de pelo menos 10 fusões.", image: "HQCAP25.png", kind: "combo", target: 10 },
+  { id: 26, title: "Cinco cocos", description: "Tenha 5 cocos simultaneamente no mesmo tabuleiro.", image: "HQCAP26.png", kind: "simultaneous", target: 5, level: 10 },
+  { id: 27, title: "O grande final", description: "Faça 105.000 pontos em uma única partida e conclua a História.", image: "HQCAP27.png", kind: "score", target: 105000 },
 ];
 
 export const EMPTY_STORY: StoryProgress = { activeChapter: null, unlockedChapter: 1, completed: [], purchased: [] };

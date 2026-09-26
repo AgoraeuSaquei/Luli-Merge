@@ -168,3 +168,8 @@ h1 em, h2 em { color: #F05D5E; font-style: normal; }
   .menu-links { margin-top: 15px; gap: 7px; }
   .menu-links button { min-height: 44px; font-size: 9px; }
 }
+
+/* Novidade: novos capítulos da História */
+.story-news-card { width: min(100%, 390px); display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 2px 10px; margin: 17px auto 0; padding: 11px 13px 10px; text-align: left; background: #F7D96D; color: #174A4B; border: 2px solid #174A4B; box-shadow: 4px 5px 0 #d2ad3d; transition: transform .16s ease, background .16s ease; }
+.story-news-card:hover { transform: translateY(-2px); background: #ffe58a; }.story-news-card:active { transform: translateY(2px); box-shadow: 2px 3px 0 #d2ad3d; }.story-news-badge { grid-row: 1 / span 3; padding: 6px 5px; background: #F05D5E; color: #fffaf1; font-size: 8px; font-weight: 900; letter-spacing: .08em; writing-mode: vertical-rl; }.story-news-card strong { font: 800 17px 'Baloo 2'; line-height: .95; }.story-news-card small { font-size: 9px; opacity: .7; }.story-news-card b { justify-self: start; margin-top: 3px; font-size: 9px; letter-spacing: .09em; }.story-news-card b span { font-size: 14px; }
+@media (max-width: 720px) { .story-news-card { width: min(100%, 360px); margin-top: 12px; padding: 9px 11px 8px; }.story-news-card strong { font-size: 15px; }.story-news-card small { font-size: 8px; }.story-news-card b { font-size: 8px; } }
