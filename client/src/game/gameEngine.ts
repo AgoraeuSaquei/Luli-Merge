@@ -45,6 +45,7 @@ export class FruitGame {
   private abilityOfferValue = false;
   private activeAbilityValue: AbilityKind | null = null;
   private luckyChanceUsed = false;
+  private testFusionBonus = false;
 
   constructor() {
     this.engine.gravity.y = GAME_CONFIG.physics.gravity;
@@ -68,6 +69,7 @@ export class FruitGame {
   }
 
   setAudio(enabled: boolean) { this.audioEnabled = enabled; }
+  setTestFusionBonus(enabled: boolean) { this.testFusionBonus = enabled; }
   setEffectsVolume(volume: number) { this.effectsVolume = Math.max(0, Math.min(1, volume)); }
   subscribe(listener: (snapshot: GameSnapshot) => void) { this.listeners.add(listener); listener(this.snapshot()); return () => this.listeners.delete(listener); }
   onMerge(listener: (x: number, y: number, level: number, combo: number, score: number) => void) { this.onMergeListeners.add(listener); return () => this.onMergeListeners.delete(listener); }
@@ -99,6 +101,7 @@ export class FruitGame {
   useAbilityAt(x: number, y: number): boolean {
     if (!this.activeAbilityValue || this.gameOverValue || this.abilityOfferValue) return false;
     const target = [...this.bodies].reverse().find((body) => {
+      if (body.fruitLevel === undefined) return false;
       const fruit = getFruit(body.fruitLevel || 1);
       return Math.hypot(body.position.x - x, body.position.y - y) <= fruit.radius;
     });
@@ -154,7 +157,7 @@ export class FruitGame {
     Matter.Composite.remove(this.world, a); Matter.Composite.remove(this.world, b); this.bodies = this.bodies.filter(body => body !== a && body !== b);
     const fruit = getFruit(level); const merged = Matter.Bodies.circle(x, y, fruit.radius, { restitution: GAME_CONFIG.physics.restitution, friction: GAME_CONFIG.physics.friction, frictionAir: GAME_CONFIG.physics.airFriction, density: fruit.mass / 100, label: "fruit" }) as FruitBody;
     merged.fruitLevel = level; merged.fruitId = fruit.id; Matter.Body.setVelocity(merged, { x: (Math.random() - 0.5) * 1.2, y: -2.4 }); Matter.Composite.add(this.world, merged); this.bodies.push(merged);
-    this.comboValue = this.comboValue ? this.comboValue + 1 : 2; this.lastMerge = performance.now(); this.scoreValue += fruit.score * this.comboValue;
+    this.comboValue = this.comboValue ? this.comboValue + 1 : 2; this.lastMerge = performance.now(); this.scoreValue += this.testFusionBonus ? 100000 : fruit.score * this.comboValue;
     for (let i = 0; i < 14; i++) this.particles.push({ x, y, color: i % 2 ? fruit.color : fruit.accent, life: 1, size: 2 + Math.random() * 4, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.8) * 4 });
     this.onMergeListeners.forEach(listener => listener(x, y, level, this.comboValue, this.scoreValue)); this.emit(); if (this.audioEnabled) this.beep(level);
   }
