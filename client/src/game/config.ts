@@ -25,6 +25,9 @@ export const GAME_CONFIG = {
     repeatTenMaxScore: 80000,
     repeatTenCount: 10,
     repeatTenBonusScore: 300,
+    repeatTenMaxWaves: 3,
+    repeatTenRepeatChance: 0.68,
+    repeatTenWaveBonusScore: 300,
     springMinScore: 30000,
     springMaxScore: 60000,
     springInitialFlowers: 5,
@@ -32,6 +35,8 @@ export const GAME_CONFIG = {
     springTurnsToTransform: 3,
     springSecondWaveScore: 10000,
     springFlowerRadius: 18,
+    springFlowerDropIntervalMs: 480,
+    springFlowerStartDelayMs: 180,
   },
   spawn: {
     firstMaxLevel: 4,

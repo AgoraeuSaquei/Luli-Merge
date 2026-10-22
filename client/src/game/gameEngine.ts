@@ -13,6 +13,7 @@ export type GameEventSnapshot = {
   announcement: string | null;
   repeatRemaining: number;
   repeatFruitLevel: number | null;
+  repeatWave: number;
   springFlowers: number;
 };
 export type GameSnapshot = {
@@ -58,6 +59,7 @@ export class FruitGame {
   private activeAbilityValue: AbilityKind | null = null;
   private luckyChanceUsed = false;
   private testFusionBonus = false;
+  private testFusionScore = 100000;
   private eventId: GameEventId = "free-points";
   private eventStatus: GameEventStatus = "inactive";
   private eventTriggerScore = 0;
@@ -66,8 +68,11 @@ export class FruitGame {
   private eventAnnouncementEndsAt = 0;
   private repeatRemaining = 0;
   private repeatFruitLevel: number | null = null;
+  private repeatWave = 0;
   private springSecondWaveSpawned = false;
   private springTargetScore = 0;
+  private springPendingFlowers = 0;
+  private springNextFlowerAt = 0;
 
   constructor() {
     this.engine.gravity.y = GAME_CONFIG.physics.gravity;
@@ -95,12 +100,12 @@ export class FruitGame {
     this.eventId = this.chooseEvent();
     const minScore = this.eventId === "free-points" ? GAME_CONFIG.events.freePointsMinScore : this.eventId === "repeat-ten" ? GAME_CONFIG.events.repeatTenMinScore : GAME_CONFIG.events.springMinScore;
     const maxScore = this.eventId === "free-points" ? GAME_CONFIG.events.freePointsMaxScore : this.eventId === "repeat-ten" ? GAME_CONFIG.events.repeatTenMaxScore : GAME_CONFIG.events.springMaxScore;
-    this.eventStatus = "inactive"; this.eventTriggerScore = minScore + Math.random() * (maxScore - minScore); this.eventEndsAt = 0; this.eventAnnouncement = null; this.eventAnnouncementEndsAt = 0; this.repeatRemaining = 0; this.repeatFruitLevel = null; this.springSecondWaveSpawned = false; this.springTargetScore = 0;
+    this.eventStatus = "inactive"; this.eventTriggerScore = minScore + Math.random() * (maxScore - minScore); this.eventEndsAt = 0; this.eventAnnouncement = null; this.eventAnnouncementEndsAt = 0; this.repeatRemaining = 0; this.repeatFruitLevel = null; this.repeatWave = 0; this.springSecondWaveSpawned = false; this.springTargetScore = 0; this.springPendingFlowers = 0; this.springNextFlowerAt = 0;
     this.emit();
   }
 
   setAudio(enabled: boolean) { this.audioEnabled = enabled; }
-  setTestFusionBonus(enabled: boolean) { this.testFusionBonus = enabled; }
+  setTestFusionBonus(enabled: boolean, points = 100000) { this.testFusionBonus = enabled; this.testFusionScore = Number.isSafeInteger(points) && points > 0 ? points : 100000; }
   setEffectsVolume(volume: number) { this.effectsVolume = Math.max(0, Math.min(1, volume)); }
   subscribe(listener: (snapshot: GameSnapshot) => void) { this.listeners.add(listener); listener(this.snapshot()); return () => this.listeners.delete(listener); }
   onMerge(listener: (x: number, y: number, level: number, combo: number, score: number) => void) { this.onMergeListeners.add(listener); return () => this.onMergeListeners.delete(listener); }
@@ -108,7 +113,7 @@ export class FruitGame {
   togglePause() { if (!this.gameOverValue && !this.abilityOfferValue) { this.pausedValue = !this.pausedValue; this.emit(); } }
   private snapshot(): GameSnapshot {
     const remainingMs = this.eventId === "free-points" && this.eventStatus === "active" ? Math.max(0, this.eventEndsAt - performance.now()) : 0;
-    return { score: this.scoreValue, best: Number(localStorage.getItem("luli-best") || 0), combo: this.comboValue, next: { ...this.nextFruit, upcoming: this.upcomingFruit }, upcoming: this.upcomingFruit, over: this.gameOverValue, paused: this.pausedValue, dangerMs: this.dangerTimer, abilityOffer: this.abilityOfferValue, activeAbility: this.activeAbilityValue, event: { id: this.eventId, status: this.eventStatus, remainingMs, announcement: this.eventAnnouncement, repeatRemaining: this.repeatRemaining, repeatFruitLevel: this.repeatFruitLevel, springFlowers: this.bodies.filter((body) => body.isFlower).length } };
+    return { score: this.scoreValue, best: Number(localStorage.getItem("luli-best") || 0), combo: this.comboValue, next: { ...this.nextFruit, upcoming: this.upcomingFruit }, upcoming: this.upcomingFruit, over: this.gameOverValue, paused: this.pausedValue, dangerMs: this.dangerTimer, abilityOffer: this.abilityOfferValue, activeAbility: this.activeAbilityValue, event: { id: this.eventId, status: this.eventStatus, remainingMs, announcement: this.eventAnnouncement, repeatRemaining: this.repeatRemaining, repeatFruitLevel: this.repeatFruitLevel, repeatWave: this.repeatWave, springFlowers: this.bodies.filter((body) => body.isFlower).length + this.springPendingFlowers } };
   }
 
   private chooseEvent(): GameEventId {
@@ -131,6 +136,7 @@ export class FruitGame {
     } else if (this.eventId === "repeat-ten") {
       this.repeatFruitLevel = this.nextFruit.level;
       this.repeatRemaining = GAME_CONFIG.events.repeatTenCount;
+      this.repeatWave = 1;
     } else {
       this.springTargetScore = this.scoreValue + GAME_CONFIG.events.springSecondWaveScore;
       this.addSpringFlowers(GAME_CONFIG.events.springInitialFlowers);
@@ -139,14 +145,29 @@ export class FruitGame {
   }
 
   private addSpringFlowers(count: number) {
-    for (let i = 0; i < count; i++) {
-      const flower = Matter.Bodies.circle(28 + Math.random() * Math.max(20, this.width - 56), 28 + Math.random() * 18, GAME_CONFIG.events.springFlowerRadius, { restitution: 0.28, friction: 0.5, frictionAir: 0.018, density: 0.7, label: "flower" }) as FruitBody;
-      flower.isFlower = true;
-      flower.flowerTurns = 0;
-      Matter.Body.setVelocity(flower, { x: (Math.random() - 0.5) * 2, y: 1 + Math.random() * 2 });
-      this.bodies.push(flower);
-      Matter.Composite.add(this.world, flower);
-    }
+    this.springPendingFlowers += count;
+    if (!this.springNextFlowerAt) this.springNextFlowerAt = performance.now() + GAME_CONFIG.events.springFlowerStartDelayMs;
+  }
+  private spawnSpringFlower() {
+    if (this.springPendingFlowers <= 0) return;
+    const radius = GAME_CONFIG.events.springFlowerRadius;
+    const flower = Matter.Bodies.circle(radius + 10 + Math.random() * Math.max(20, this.width - radius * 2 - 20), 20 + Math.random() * 12, radius, { restitution: 0.28, friction: 0.5, frictionAir: 0.018, density: 0.7, label: "flower" }) as FruitBody;
+    flower.isFlower = true;
+    flower.flowerTurns = 0;
+    Matter.Body.setVelocity(flower, { x: (Math.random() - 0.5) * 1.6, y: 1 + Math.random() * 1.8 });
+    Matter.Body.setAngularVelocity(flower, (Math.random() - 0.5) * 0.08);
+    this.bodies.push(flower);
+    Matter.Composite.add(this.world, flower);
+    this.springPendingFlowers -= 1;
+    this.addFlowerParticles(flower.position.x, flower.position.y);
+    this.springNextFlowerAt = this.springPendingFlowers > 0 ? performance.now() + GAME_CONFIG.events.springFlowerDropIntervalMs : 0;
+  }
+  private updateSpringRain(now: number) {
+    if (this.springPendingFlowers <= 0 || !this.springNextFlowerAt || now < this.springNextFlowerAt) return;
+    this.spawnSpringFlower();
+  }
+  private addFlowerParticles(x: number, y: number) {
+    for (let i = 0; i < 7; i++) this.particles.push({ x, y, color: i % 2 ? "#F7D96D" : "#F05D5E", life: 0.8, size: 2 + Math.random() * 3, vx: (Math.random() - 0.5) * 2.4, vy: -0.8 - Math.random() * 1.5 });
   }
   private transformFlower(flower: FruitBody, level?: number) {
     if (!flower.isFlower) return;
@@ -161,7 +182,7 @@ export class FruitGame {
     Matter.Body.setVelocity(fruit, velocity);
     Matter.Composite.add(this.world, fruit);
     this.bodies.push(fruit);
-    if (this.eventId === "spring" && this.eventStatus === "active" && this.springSecondWaveSpawned && this.bodies.every((body) => !body.isFlower)) {
+    if (this.eventId === "spring" && this.eventStatus === "active" && this.springSecondWaveSpawned && this.springPendingFlowers === 0 && this.bodies.every((body) => !body.isFlower)) {
       this.eventStatus = "completed";
       this.eventAnnouncement = "AAH! PRIMAVERA ENCERRADA!";
       this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
@@ -205,10 +226,20 @@ export class FruitGame {
       this.repeatRemaining -= 1;
       if (this.repeatRemaining > 0) this.nextFruit = getFruit(this.repeatFruitLevel);
       else {
-        this.eventStatus = "completed";
-        this.eventAnnouncement = "COMPRE 1, LEVE 10 ENCERRADO!";
-        this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
-        this.scoreValue += GAME_CONFIG.events.repeatTenBonusScore;
+        const canRepeat = this.repeatWave < GAME_CONFIG.events.repeatTenMaxWaves && Math.random() < GAME_CONFIG.events.repeatTenRepeatChance;
+        if (canRepeat) {
+          this.repeatWave += 1;
+          this.repeatFruitLevel = this.nextFruit.level;
+          this.repeatRemaining = GAME_CONFIG.events.repeatTenCount;
+          this.eventAnnouncement = `MAIS 10! RODADA ${this.repeatWave}/${GAME_CONFIG.events.repeatTenMaxWaves}`;
+          this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
+          this.scoreValue += GAME_CONFIG.events.repeatTenWaveBonusScore;
+        } else {
+          this.eventStatus = "completed";
+          this.eventAnnouncement = "COMPRE 1, LEVE 10 ENCERRADO!";
+          this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
+          this.scoreValue += GAME_CONFIG.events.repeatTenBonusScore;
+        }
       }
     }
     if (!this.luckyChanceUsed && this.scoreValue >= 50000 && Math.random() < 0.05) { this.luckyChanceUsed = true; this.abilityOfferValue = true; this.pausedValue = true; }
@@ -269,6 +300,7 @@ export class FruitGame {
     Matter.Engine.update(this.engine, delta);
     const now = performance.now();
     if (this.eventStatus === "inactive") this.maybeStartEvent();
+    this.updateSpringRain(now);
     if (this.eventStatus === "active" && this.eventId === "spring" && !this.springSecondWaveSpawned && this.scoreValue >= this.springTargetScore) {
       this.springSecondWaveSpawned = true;
       this.addSpringFlowers(GAME_CONFIG.events.springSecondWaveFlowers);
@@ -296,7 +328,7 @@ export class FruitGame {
     Matter.Composite.remove(this.world, a); Matter.Composite.remove(this.world, b); this.bodies = this.bodies.filter(body => body !== a && body !== b);
     const fruit = getFruit(level); const merged = Matter.Bodies.circle(x, y, fruit.radius, { restitution: GAME_CONFIG.physics.restitution, friction: GAME_CONFIG.physics.friction, frictionAir: GAME_CONFIG.physics.airFriction, density: fruit.mass / 100, label: "fruit" }) as FruitBody;
     merged.fruitLevel = level; merged.fruitId = fruit.id; Matter.Body.setVelocity(merged, { x: (Math.random() - 0.5) * 1.2, y: -2.4 }); Matter.Composite.add(this.world, merged); this.bodies.push(merged);
-    this.comboValue = this.comboValue ? this.comboValue + 1 : 2; this.lastMerge = performance.now(); this.scoreValue += this.scoreWithEvent(this.testFusionBonus ? 100000 : fruit.score * this.comboValue);
+    this.comboValue = this.comboValue ? this.comboValue + 1 : 2; this.lastMerge = performance.now(); this.scoreValue += this.scoreWithEvent(this.testFusionBonus ? this.testFusionScore : fruit.score * this.comboValue);
     for (let i = 0; i < 14; i++) this.particles.push({ x, y, color: i % 2 ? fruit.color : fruit.accent, life: 1, size: 2 + Math.random() * 4, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.8) * 4 });
     this.onMergeListeners.forEach(listener => listener(x, y, level, this.comboValue, this.scoreValue)); this.maybeStartEvent(); this.emit(); if (this.audioEnabled) this.beep(level);
   }
