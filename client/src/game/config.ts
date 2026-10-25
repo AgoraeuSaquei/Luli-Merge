@@ -26,7 +26,7 @@ export const GAME_CONFIG = {
     repeatTenCount: 10,
     repeatTenBonusScore: 300,
     repeatTenMaxWaves: 3,
-    repeatTenRepeatChance: 0.68,
+    repeatTenRepeatChance: 0.10,
     repeatTenWaveBonusScore: 300,
     springMinScore: 30000,
     springMaxScore: 60000,

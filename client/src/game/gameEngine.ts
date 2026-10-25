@@ -69,6 +69,7 @@ export class FruitGame {
   private repeatRemaining = 0;
   private repeatFruitLevel: number | null = null;
   private repeatWave = 0;
+  private repeatWaitingForChance = false;
   private springSecondWaveSpawned = false;
   private springTargetScore = 0;
   private springPendingFlowers = 0;
@@ -100,7 +101,7 @@ export class FruitGame {
     this.eventId = this.chooseEvent();
     const minScore = this.eventId === "free-points" ? GAME_CONFIG.events.freePointsMinScore : this.eventId === "repeat-ten" ? GAME_CONFIG.events.repeatTenMinScore : GAME_CONFIG.events.springMinScore;
     const maxScore = this.eventId === "free-points" ? GAME_CONFIG.events.freePointsMaxScore : this.eventId === "repeat-ten" ? GAME_CONFIG.events.repeatTenMaxScore : GAME_CONFIG.events.springMaxScore;
-    this.eventStatus = "inactive"; this.eventTriggerScore = minScore + Math.random() * (maxScore - minScore); this.eventEndsAt = 0; this.eventAnnouncement = null; this.eventAnnouncementEndsAt = 0; this.repeatRemaining = 0; this.repeatFruitLevel = null; this.repeatWave = 0; this.springSecondWaveSpawned = false; this.springTargetScore = 0; this.springPendingFlowers = 0; this.springNextFlowerAt = 0;
+    this.eventStatus = "inactive"; this.eventTriggerScore = minScore + Math.random() * (maxScore - minScore); this.eventEndsAt = 0; this.eventAnnouncement = null; this.eventAnnouncementEndsAt = 0; this.repeatRemaining = 0; this.repeatFruitLevel = null; this.repeatWave = 0; this.repeatWaitingForChance = false; this.springSecondWaveSpawned = false; this.springTargetScore = 0; this.springPendingFlowers = 0; this.springNextFlowerAt = 0;
     this.emit();
   }
 
@@ -137,6 +138,7 @@ export class FruitGame {
       this.repeatFruitLevel = this.nextFruit.level;
       this.repeatRemaining = GAME_CONFIG.events.repeatTenCount;
       this.repeatWave = 1;
+      this.repeatWaitingForChance = false;
     } else {
       this.springTargetScore = this.scoreValue + GAME_CONFIG.events.springSecondWaveScore;
       this.addSpringFlowers(GAME_CONFIG.events.springInitialFlowers);
@@ -202,6 +204,20 @@ export class FruitGame {
       if ((flower.flowerTurns || 0) >= GAME_CONFIG.events.springTurnsToTransform) this.transformFlower(flower);
     });
   }
+  private startRepeatWave() {
+    if (this.repeatWave >= GAME_CONFIG.events.repeatTenMaxWaves) return;
+    this.repeatWave += 1;
+    this.repeatFruitLevel = this.nextFruit.level;
+    this.repeatRemaining = GAME_CONFIG.events.repeatTenCount;
+    this.repeatWaitingForChance = false;
+    this.scoreValue += GAME_CONFIG.events.repeatTenWaveBonusScore;
+  }
+  private finishRepeatEvent() {
+    this.eventStatus = "completed";
+    this.eventAnnouncement = "COMPRE 1, LEVE 10 ENCERRADO!";
+    this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
+    this.scoreValue += GAME_CONFIG.events.repeatTenBonusScore;
+  }
   private scoreWithEvent(amount: number) {
     return this.eventStatus === "active" && this.eventId === "free-points" ? amount * GAME_CONFIG.events.scoreMultiplier : amount;
   }
@@ -222,23 +238,25 @@ export class FruitGame {
     const normalNext = this.upcomingFruit;
     this.nextFruit = normalNext;
     this.upcomingFruit = pickNextFruit(Math.min(GAME_CONFIG.spawn.maxLevel, GAME_CONFIG.spawn.firstMaxLevel - 1 + Math.floor(this.scoreValue / GAME_CONFIG.spawn.maxLevelIncreaseScore)));
-    if (this.eventStatus === "active" && this.eventId === "repeat-ten" && this.repeatRemaining > 0 && this.repeatFruitLevel !== null) {
-      this.repeatRemaining -= 1;
-      if (this.repeatRemaining > 0) this.nextFruit = getFruit(this.repeatFruitLevel);
-      else {
-        const canRepeat = this.repeatWave < GAME_CONFIG.events.repeatTenMaxWaves && Math.random() < GAME_CONFIG.events.repeatTenRepeatChance;
-        if (canRepeat) {
-          this.repeatWave += 1;
-          this.repeatFruitLevel = this.nextFruit.level;
-          this.repeatRemaining = GAME_CONFIG.events.repeatTenCount;
-          this.eventAnnouncement = `MAIS 10! RODADA ${this.repeatWave}/${GAME_CONFIG.events.repeatTenMaxWaves}`;
-          this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
-          this.scoreValue += GAME_CONFIG.events.repeatTenWaveBonusScore;
+    if (this.eventStatus === "active" && this.eventId === "repeat-ten") {
+      if (this.repeatRemaining > 0 && this.repeatFruitLevel !== null) {
+        this.repeatRemaining -= 1;
+        if (this.repeatRemaining > 0) {
+          this.nextFruit = getFruit(this.repeatFruitLevel);
+        } else if (this.repeatWave >= GAME_CONFIG.events.repeatTenMaxWaves) {
+          this.finishRepeatEvent();
         } else {
-          this.eventStatus = "completed";
-          this.eventAnnouncement = "COMPRE 1, LEVE 10 ENCERRADO!";
+          this.repeatWaitingForChance = true;
+          this.eventAnnouncement = "SESSÃO ENCERRADA · AGUARDE A PRÓXIMA!";
           this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
-          this.scoreValue += GAME_CONFIG.events.repeatTenBonusScore;
+        }
+      } else if (this.repeatWaitingForChance) {
+        const canRepeat = Math.random() < GAME_CONFIG.events.repeatTenRepeatChance;
+        if (canRepeat) {
+          this.startRepeatWave();
+          this.eventAnnouncement = `MAIS 10! SESSÃO ${this.repeatWave}/${GAME_CONFIG.events.repeatTenMaxWaves}`;
+          this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
+          this.nextFruit = getFruit(this.repeatFruitLevel || this.nextFruit.level);
         }
       }
     }
