@@ -632,7 +632,7 @@ export default function Home() {
                 <strong>{album.owned.length}<small>/{STICKERS.length}</small></strong>
               </div>
               <div className="merge-menu__stat">
-                <img src={asset("carta-dourada.png")} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                <img src={asset("cartadourada.PNG")} alt="" />
                 <span>CARTAS</span>
                 <strong>{album.goldenCards}</strong>
               </div>
