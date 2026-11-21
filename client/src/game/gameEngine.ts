@@ -70,6 +70,7 @@ export class FruitGame {
   private repeatFruitLevel: number | null = null;
   private repeatWave = 0;
   private repeatWaitingForChance = false;
+  private repeatChanceAttempts = 0;
   private springSecondWaveSpawned = false;
   private springTargetScore = 0;
   private springPendingFlowers = 0;
@@ -101,7 +102,7 @@ export class FruitGame {
     this.eventId = this.chooseEvent();
     const minScore = this.eventId === "free-points" ? GAME_CONFIG.events.freePointsMinScore : this.eventId === "repeat-ten" ? GAME_CONFIG.events.repeatTenMinScore : GAME_CONFIG.events.springMinScore;
     const maxScore = this.eventId === "free-points" ? GAME_CONFIG.events.freePointsMaxScore : this.eventId === "repeat-ten" ? GAME_CONFIG.events.repeatTenMaxScore : GAME_CONFIG.events.springMaxScore;
-    this.eventStatus = "inactive"; this.eventTriggerScore = minScore + Math.random() * (maxScore - minScore); this.eventEndsAt = 0; this.eventAnnouncement = null; this.eventAnnouncementEndsAt = 0; this.repeatRemaining = 0; this.repeatFruitLevel = null; this.repeatWave = 0; this.repeatWaitingForChance = false; this.springSecondWaveSpawned = false; this.springTargetScore = 0; this.springPendingFlowers = 0; this.springNextFlowerAt = 0;
+    this.eventStatus = "inactive"; this.eventTriggerScore = minScore + Math.random() * (maxScore - minScore); this.eventEndsAt = 0; this.eventAnnouncement = null; this.eventAnnouncementEndsAt = 0; this.repeatRemaining = 0; this.repeatFruitLevel = null; this.repeatWave = 0; this.repeatWaitingForChance = false; this.repeatChanceAttempts = 0; this.springSecondWaveSpawned = false; this.springTargetScore = 0; this.springPendingFlowers = 0; this.springNextFlowerAt = 0;
     this.emit();
   }
 
@@ -210,6 +211,7 @@ export class FruitGame {
     this.repeatFruitLevel = this.nextFruit.level;
     this.repeatRemaining = GAME_CONFIG.events.repeatTenCount;
     this.repeatWaitingForChance = false;
+    this.repeatChanceAttempts = 0;
     this.scoreValue += GAME_CONFIG.events.repeatTenWaveBonusScore;
   }
   private finishRepeatEvent() {
@@ -251,7 +253,9 @@ export class FruitGame {
           this.eventAnnouncementEndsAt = performance.now() + GAME_CONFIG.events.announcementDurationMs;
         }
       } else if (this.repeatWaitingForChance) {
-        const canRepeat = Math.random() < GAME_CONFIG.events.repeatTenRepeatChance;
+        this.repeatChanceAttempts += 1;
+         const canRepeat = Math.random() < GAME_CONFIG.events.repeatTenRepeatChance;
+         if (!canRepeat && this.repeatChanceAttempts >= 10) { this.repeatWaitingForChance = false; this.finishRepeatEvent(); }
         if (canRepeat) {
           this.startRepeatWave();
           this.eventAnnouncement = `MAIS 10! SESSÃO ${this.repeatWave}/${GAME_CONFIG.events.repeatTenMaxWaves}`;
@@ -332,8 +336,9 @@ export class FruitGame {
       this.eventAnnouncementEndsAt = now + GAME_CONFIG.events.announcementDurationMs;
     }
     if (this.eventAnnouncement && now >= this.eventAnnouncementEndsAt) this.eventAnnouncement = null;
-    const highest = this.bodies.reduce((value, body) => Math.min(value, body.position.y - (getFruit(body.fruitLevel || 1).radius)), this.height);
-    const isInDangerZone = this.bodies.length > 0 && highest < GAME_CONFIG.danger.lineY;
+    const fruits = this.bodies.filter((body) => !body.isFlower && body.fruitLevel !== undefined);
+    const highest = fruits.reduce((value, body) => Math.min(value, body.position.y - getFruit(body.fruitLevel!).radius), this.height);
+    const isInDangerZone = fruits.length > 0 && highest < GAME_CONFIG.danger.lineY;
     if (isInDangerZone) { if (this.dangerTimer <= 0) this.dangerTimer = GAME_CONFIG.danger.maxTimeMs; this.dangerTimer = Math.max(0, this.dangerTimer - delta); if (this.dangerTimer === 0) { this.gameOverValue = true; const best = Math.max(this.scoreValue, Number(localStorage.getItem("luli-best") || 0)); localStorage.setItem("luli-best", String(best)); this.emit(); } } else this.dangerTimer = 0;
     if (this.comboValue && now - this.lastMerge > GAME_CONFIG.combo.resetAfterMs) { this.comboValue = 0; this.emit(); }
     for (let i = this.particles.length - 1; i >= 0; i--) { const p = this.particles[i]; p.life -= delta / 700; p.x += p.vx; p.y += p.vy; p.vy += 0.08; if (p.life <= 0) this.particles.splice(i, 1); }

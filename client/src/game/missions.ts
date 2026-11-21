@@ -74,7 +74,8 @@ export function applyMissionEvent(state: MissionState, event: MissionEvent) {
     if (entry.completed) return entry;
     let increment = 0;
     if (mission.id === 1 || mission.id === 2) increment = 1;
-    if (mission.id === 3 || mission.id === 4 || mission.id === 5) increment = event.combo;
+    if (mission.id === 3 || mission.id === 4) increment = event.combo;
+    if (mission.id === 5) increment = Math.max(0, event.combo - 1);
     if (mission.id === 6 || mission.id === 7 || mission.id === 11) increment = event.score;
     if (mission.id === 8 && event.level >= 8) increment = 1;
     if (mission.id === 9 && event.level === 9) increment = 1;
