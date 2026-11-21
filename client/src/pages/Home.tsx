@@ -5,7 +5,7 @@ import { LorePage } from "@/pages/Lore";
 import { FRUITS, FruitDefinition, getFruit } from "@/game/fruits";
 import { allMissionsCompleted, applyMissionEvent, createNextMissionState, getMission, missionRewardLabel, MISSION_STORAGE_KEY, readMissionState, MissionState } from "@/game/missions";
 import { activateStoryMission, completeStoryMission, purchaseStoryPage, readStoryProgress, saveStoryProgress, STORY_EVENT_KEY, STORY_EVENT_SCORE_TARGET, STORY_FINAL_REWARD_KEY, STORY_MISSIONS, STORY_PAGE_PRICES, STORY_STORAGE_KEY, StoryEventPhase, StoryProgress, readStoryEventPhase, saveStoryEventPhase, unlockStoryEventPages } from "@/game/story";
-import { Volume2, VolumeX, Pause, Play, RotateCcw, HelpCircle, Settings2, ChevronLeft, Images, Shirt, BookOpen, LockKeyhole, Check } from "lucide-react";
+import { Volume2, VolumeX, Pause, Play, RotateCcw, HelpCircle, Settings2, ChevronLeft, Images, Shirt, BookOpen, LockKeyhole, Check, Trophy, Sparkles, ChevronRight } from "lucide-react";
 
 const asset = (name: string) => `${import.meta.env.BASE_URL}assets/${name}`;
 const LOGO = asset("logo_luli_merge.png");
@@ -588,8 +588,86 @@ export default function Home() {
         <span>A PREPARAR O JOGO</span>
       </section>
     )}
-    <header className={`topbar ${screen === "game" ? "game-topbar" : ""}`}><button className="brand" onClick={() => { if (screen === "game") leaveGame(); else setScreen("menu"); }}><img src={LOGO} alt="" /><span className="brand-wordmark">LULI <b>FRUIT</b><i aria-hidden="true" /></span></button><div className="topbar-note">A tua pausa mais saborosa</div><button className="sound-button" aria-label={sound ? "Desligar som" : "Ligar som"} onClick={() => setSound(!sound)}>{sound ? <Volume2 size={19} /> : <VolumeX size={19} />}</button></header>
-      {screen === "menu" && <section className="menu-layout" onPointerDown={playWelcomeAudio}><div className="menu-copy"><p className="eyebrow">PEQUENAS FRUTAS. GRANDES FUSÕES.</p><h1>Junta tudo<br /><em>com sabor.</em></h1><p className="intro">Deixa cair, combina frutas iguais e vê até onde consegues chegar antes de encher o frasco.</p><button className="primary-button" onClick={start}>JOGAR AGORA <span>→</span></button><button className="story-news-card" onClick={() => setScreen("story")}><span className="story-news-badge">NOVIDADE</span><strong>18 novas páginas da História!</strong><small>Capítulos 10 a 27 já estão disponíveis</small><b>VER HISTÓRIA <span>→</span></b></button><div className="menu-links"><button onClick={() => setScreen("help")}><HelpCircle size={17} /> Como jogar</button><button onClick={() => setScreen("album")}><Images size={17} /> Álbum</button><button onClick={() => setScreen("story")}><BookOpen size={17} /> História</button>{storyComplete && <button onClick={() => setScreen("lore")}><BookOpen size={17} /> Lore</button>}<button onClick={() => setScreen("wardrobe")}><Shirt size={17} /> Armário</button><button onClick={() => setScreen("settings")}><Settings2 size={17} /> Definições</button></div></div><div className="menu-art"><div className="sticker sticker-top">NOVIDADE<br /><strong>+18</strong> paginas</div><img className="menu-logo" src={LOGO} alt="Luli Fruit" /><div className="menu-score-card"><span>RECORDE ATUAL</span><strong>{state?.best || 0}</strong><i>continua a subir</i></div></div></section>}
+    <header className={`topbar ${screen === "game" ? "game-topbar" : ""}`}><button className="brand" onClick={() => { if (screen === "game") leaveGame(); else setScreen("menu"); }}><img src={LOGO} alt="" /><span className="brand-wordmark">LULI <b>FRUIT</b><i aria-hidden="true" /></span></button><div className="topbar-note">FRUTAS · FUSÕES · RECOMPENSAS</div><button className="sound-button" aria-label={sound ? "Desligar som" : "Ligar som"} onClick={() => setSound(!sound)}>{sound ? <Volume2 size={19} /> : <VolumeX size={19} />}</button></header>
+      {screen === "menu" && (
+        <section className="merge-menu" onPointerDown={playWelcomeAudio} aria-label="Menu principal do Luli Merge">
+          <div className="merge-menu__stage">
+            <h1 className="merge-menu__visually-hidden">Luli Merge</h1>
+            <span className="merge-menu__sparkle merge-menu__sparkle--one" aria-hidden="true">✦</span>
+            <span className="merge-menu__sparkle merge-menu__sparkle--two" aria-hidden="true">✧</span>
+            <span className="merge-menu__sparkle merge-menu__sparkle--three" aria-hidden="true">✦</span>
+            <img className="merge-menu__logo" src={LOGO} alt="" />
+            <div className="merge-menu__jar" aria-hidden="true">
+              <span className="merge-menu__jar-rim" />
+              <span className="merge-menu__jar-shine" />
+            </div>
+            <div className="merge-menu__fruit-stack" aria-hidden="true">
+              <img className="merge-menu__fruit merge-menu__fruit--melon" src={FRUITS[7].image} alt="" />
+              <img className="merge-menu__fruit merge-menu__fruit--orange" src={FRUITS[4].image} alt="" />
+              <img className="merge-menu__fruit merge-menu__fruit--apple" src={FRUITS[5].image} alt="" />
+              <img className="merge-menu__fruit merge-menu__fruit--strawberry" src={FRUITS[2].image} alt="" />
+              <img className="merge-menu__fruit merge-menu__fruit--grape" src={FRUITS[1].image} alt="" />
+              <img className="merge-menu__fruit merge-menu__fruit--berry" src={FRUITS[0].image} alt="" />
+            </div>
+            <div className="merge-menu__stage-tag" aria-hidden="true"><Sparkles size={15} /> FUSÃO DE FRUTAS</div>
+          </div>
+
+          <div className="merge-menu__panel">
+            <div className="merge-menu__section-label"><span /> MENU PRINCIPAL</div>
+            <button className="merge-menu__play" type="button" onClick={start}>
+              <span className="merge-menu__play-icon"><Play size={25} fill="currentColor" /></span>
+              <strong>JOGAR</strong>
+              <ChevronRight className="merge-menu__play-chevron" size={30} strokeWidth={3} />
+            </button>
+
+            <div className="merge-menu__stats" aria-label="Seu progresso">
+              <div className="merge-menu__stat">
+                <Trophy size={19} aria-hidden="true" />
+                <span>RECORDE</span>
+                <strong>{(state?.best || 0).toLocaleString("pt-BR")}</strong>
+              </div>
+              <div className="merge-menu__stat">
+                <Images size={19} aria-hidden="true" />
+                <span>FIGURINHAS</span>
+                <strong>{album.owned.length}<small>/{STICKERS.length}</small></strong>
+              </div>
+              <div className="merge-menu__stat">
+                <img src={asset("carta-dourada.png")} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                <span>CARTAS</span>
+                <strong>{album.goldenCards}</strong>
+              </div>
+            </div>
+
+            <div className="merge-menu__nav-heading">EXPLORAR</div>
+            <nav className="merge-menu__navigation" aria-label="Outras áreas do jogo">
+              <button className="merge-menu__tile merge-menu__tile--album" type="button" onClick={() => setScreen("album")}>
+                <span className="merge-menu__tile-icon"><Images size={25} /></span>
+                <span className="merge-menu__tile-text"><strong>Álbum</strong><small>Coleção de figurinhas</small></span>
+                <ChevronRight size={18} className="merge-menu__tile-chevron" />
+              </button>
+              <button className="merge-menu__tile merge-menu__tile--story" type="button" onClick={() => setScreen("story")}>
+                <span className="merge-menu__tile-icon"><BookOpen size={25} /></span>
+                <span className="merge-menu__tile-text"><strong>História</strong><small>Novos capítulos</small></span>
+                <span className="merge-menu__tile-dot" aria-label="Novidade" />
+              </button>
+              <button className="merge-menu__tile merge-menu__tile--wardrobe" type="button" onClick={() => setScreen("wardrobe")}>
+                <span className="merge-menu__tile-icon"><Shirt size={25} /></span>
+                <span className="merge-menu__tile-text"><strong>Armário</strong><small>Skins das frutas</small></span>
+                <ChevronRight size={18} className="merge-menu__tile-chevron" />
+              </button>
+              <button className="merge-menu__tile merge-menu__tile--help" type="button" onClick={() => setScreen("help")}>
+                <span className="merge-menu__tile-icon"><HelpCircle size={25} /></span>
+                <span className="merge-menu__tile-text"><strong>Como jogar</strong><small>Regras e dicas</small></span>
+                <ChevronRight size={18} className="merge-menu__tile-chevron" />
+              </button>
+            </nav>
+            <div className="merge-menu__utilities">
+              <button type="button" onClick={() => setScreen("settings")}><Settings2 size={17} /> Definições</button>
+              {storyComplete && <button type="button" onClick={() => setScreen("lore")}><BookOpen size={17} /> Lore</button>}
+            </div>
+          </div>
+        </section>
+      )}
     {screen === "game" && <section className="game-layout"><div className="game-hud"><div className="hud-stats"><strong>{(state?.score || 0).toLocaleString("pt-PT")}</strong><span>🏆 {(state?.best || 0).toLocaleString("pt-PT")}</span><span>🎴 {Math.max(0, 100000 - album.points).toLocaleString("pt-PT")}</span></div><button className="missions-button" onClick={() => { missionOpenedFromRunning.current = !state?.paused; if (!state?.paused) gameRef.current?.togglePause(); setMissionsOpen(true); }}><span>✦</span><b>MISSÕES</b><small>{missions.progress.filter((entry) => entry.completed).length}/{missions.progress.length}</small></button><div className="hud-next"><button className="pause-icon" onClick={() => gameRef.current?.togglePause()} aria-label={state?.paused ? "Continuar" : "Pausar"}>{state?.paused ? <Play size={16} /> : <Pause size={16} />}</button>{state?.upcoming && <FruitBadge fruit={state.upcoming} small skinImage={equippedSkins[state.upcoming.id as SkinId]} />}</div></div><div className="board-wrap">{rewardNotice && <div className="reward-notice">{rewardNotice}</div>}<div className="board-heading"><span className="stamp-label">RONDA LIVRE</span><small>toque para posicionar · toque novamente para largar</small>{state?.event.status === "active" && <b className="free-event-counter">{state.event.id === "free-points" ? `2X PONTOS · ${Math.ceil(state.event.remainingMs / 1000)}s` : state.event.id === "repeat-ten" ? `FRUTAS IGUAIS · ${state.event.repeatRemaining}/10 · ${state.event.repeatWave}/3` : `FLORES · ${state.event.springFlowers}`}</b>}</div><div className="board">{state?.event.id === "spring" && state.event.status !== "inactive" && <div className={`spring-atmosphere ${state.event.status === "active" ? "is-active" : "is-lingering"}`} aria-hidden="true"><span className="spring-glow" /><span className="spring-petal petal-one">✿</span><span className="spring-petal petal-two">✿</span><span className="spring-petal petal-three">✿</span><span className="spring-petal petal-four">✿</span><span className="spring-petal petal-five">✿</span></div>}{state?.event.announcement && <div className={`free-event-card ${state.event.status === "completed" ? "is-ending" : ""}`}><span>EVENTO DA PARTIDA</span><strong>{state.event.announcement}</strong><small>{state.event.status === "active" ? (state.event.id === "free-points" ? "Todos os pontos valem o dobro por 1 minuto!" : state.event.id === "repeat-ten" ? "As próximas 10 frutas serão iguais!" : "Flores viram frutas após 3 jogadas ou ao tocar em uma fruta.") : (state.event.id === "free-points" ? "Recompensa recebida: +1 Fragmento." : state.event.id === "repeat-ten" ? "Bônus concluído: +300 pontos." : "Recompensa recebida: +1 Fragmento.")}</small></div>}<canvas ref={canvasRef} onPointerMove={pointerPosition} onPointerDown={pointerStart} onPointerUp={drop} onKeyDown={key} tabIndex={0} aria-label="Tabuleiro de LULI FRUIT" />{flash && effects && <div className="merge-flash" style={{ left: flash.x, top: flash.y }}>{flash.text}</div>}{state?.activeAbility && <div className="ability-active-hint">{state.activeAbility === "prism-orb" ? "ORBE DE PRISMA" : "BOMBA FRUTÍFERA"}: clique em uma fruta</div>}{state?.abilityOffer && <div className="modal-cover ability-offer"><div className="modal-card ability-modal"><span className="modal-kicker">SORTE GRANDE!</span><h2>Escolha uma habilidade</h2><p>Use-a clicando em uma fruta do tabuleiro. Ela só pode ser usada uma vez nesta partida.</p><div className="ability-options"><button onClick={() => chooseAbility("prism-orb")}><img src={asset("habilidade-orbe.png")} alt="Orbe de Prisma" /><strong>ORBE DE PRISMA</strong><small>Avança todas as frutas do tipo e dá 1.000 pontos por fruta.</small></button><button onClick={() => chooseAbility("fruit-bomb")}><img src={asset("habilidade-bomba.png")} alt="Bomba Frutífera" /><strong>BOMBA FRUTÍFERA</strong><small>Destrói todas as frutas do tipo e dá 250 pontos por fruta.</small></button></div></div></div>}{state?.paused && !missionsOpen && !state?.abilityOffer && <div className="modal-cover"><div className="modal-card"><span className="modal-kicker">A FRUTEIRA EM PAUSA</span><h2>Respira.<br /><em>Já voltamos.</em></h2><button className="primary-button" onClick={() => gameRef.current?.togglePause()}>CONTINUAR <Play size={16} /></button><button className="text-button" onClick={start}><RotateCcw size={15} /> Recomeçar</button></div></div>}{state?.over && <div className="modal-cover"><div className="modal-card"><span className="modal-kicker">A FRUTEIRA FICOU CHEIA</span><h2>Boa colheita.<br /><em>Outra vez?</em></h2><div className="final-score"><span>PONTUAÇÃO</span><b>{state.score}</b></div><button className="primary-button" onClick={start}>JOGAR NOVAMENTE <RotateCcw size={16} /></button><button className="text-button" onClick={() => setScreen("menu")}><ChevronLeft size={15} /> Menu principal</button></div></div>}</div></div>{missionsOpen && <><div className="mission-backdrop" onClick={() => { setMissionsOpen(false); if (missionOpenedFromRunning.current) gameRef.current?.togglePause(); }} /><MissionDrawer missions={missions} onClose={() => { setMissionsOpen(false); if (missionOpenedFromRunning.current) gameRef.current?.togglePause(); }} /></>}</section>}
     {screen === "story" && <><StoryPage progress={story} goldenCards={album.goldenCards} onActivate={activateStory} onPurchase={purchaseStory} onClose={() => setScreen("menu")} />{storyEventPhase !== "none" && <div className="story-event-layer">{storyEventPhase === "victory" && <div className="story-event-modal"><p className="eyebrow">CAPÍTULO 37</p><h2>Parabéns,<br /><em>você venceu!</em></h2><button className="primary-button" onClick={() => setStoryEvent("prompt")}>AVANÇAR <span>→</span></button></div>}{storyEventPhase === "prompt" && <div className="story-event-modal"><p className="eyebrow">UMA ÚLTIMA PERGUNTA</p><h2>Você gosta<br /><em>de surpresas?</em></h2><div className="story-event-actions"><button className="primary-button" onClick={() => setStoryEvent("challenge")}>SIM</button><button className="text-button" onClick={() => setStoryEvent("no")}>NÃO</button></div></div>}{storyEventPhase === "no" && <div className="story-event-modal"><p className="eyebrow">NÃO, NÃO É UMA OPÇÃO</p><h2>Não, Não é<br /><em>uma opção.</em></h2><p>Você gosta de surpresas?</p><button className="primary-button" onClick={() => setStoryEvent("challenge")}>SIM</button></div>}{storyEventPhase === "challenge" && <div className="story-event-modal"><p className="eyebrow">SURPRESA A CAMINHO</p><h2>Faça {STORY_EVENT_SCORE_TARGET.toLocaleString("pt-BR")} pontos</h2><p>Jogue uma partida e volte aqui que teremos uma surpresa. As duas últimas páginas serão liberadas quando você atingir a pontuação.</p><button className="primary-button" onClick={() => setScreen("menu")}>ENTENDI <span>→</span></button></div>}{storyEventPhase === "unlocked" && <div className="story-event-modal"><p className="eyebrow">EVENTO DESBLOQUEADO</p><h2>As páginas<br /><em>secretas chegaram!</em></h2><p>Os capítulos 38 e 39 estão liberados sem custo.</p><button className="primary-button" onClick={() => setStoryEvent("none")}>VER HISTÓRIA <span>→</span></button></div>}</div>}</> }
     {screen === "lore" && storyComplete && <LorePage goldenCards={album.goldenCards} onSpendCards={spendLoreCards} onClose={() => setScreen("menu")} />}
