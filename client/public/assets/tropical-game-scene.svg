@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 940" width="440" height="940" aria-hidden="true">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#63c7ef"/><stop offset=".43" stop-color="#b1eef1"/><stop offset=".74" stop-color="#a9e8dc"/><stop offset="1" stop-color="#ffe8b8"/></linearGradient>
+  <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#29a7bf"/><stop offset=".56" stop-color="#77dbcf"/><stop offset="1" stop-color="#bee8cf"/></linearGradient>
+  <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f4dfb5"/><stop offset="1" stop-color="#efc585"/></linearGradient>
+  <linearGradient id="palm" x1="0" y1="0" x2="1" y2=".6"><stop stop-color="#1a7552"/><stop offset=".48" stop-color="#369b56"/><stop offset="1" stop-color="#63b966"/></linearGradient>
+  <linearGradient id="wood" x1="0" y1="0" x2="1" y2=".1"><stop stop-color="#985328"/><stop offset=".5" stop-color="#bf7536"/><stop offset="1" stop-color="#865026"/></linearGradient>
+  <radialGradient id="sun"><stop offset="0" stop-color="#fff9de" stop-opacity=".86"/><stop offset="1" stop-color="#fff7d0" stop-opacity="0"/></radialGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="8"/></filter>
+  <g id="leaf">
+     <path d="M0 0C15-28 48-62 115-62 82-38 46-5 0 0Z" fill="url(#palm)" stroke="#2b8750" stroke-width="1.7"/>
+     <path d="M0 0C43-29 72-40 107-58" fill="none" stroke="#b5e88c" stroke-opacity=".46" stroke-width="2"/>
+  </g>
+  <g id="hibiscus">
+     <g fill="#f36273" stroke="#d84b65" stroke-width="1.5">
+       <ellipse rx="18" ry="31" transform="rotate(0) translate(0 -21)"/>
+       <ellipse rx="18" ry="31" transform="rotate(72) translate(0 -21)"/>
+       <ellipse rx="18" ry="31" transform="rotate(144) translate(0 -21)"/>
+       <ellipse rx="18" ry="31" transform="rotate(216) translate(0 -21)"/>
+       <ellipse rx="18" ry="31" transform="rotate(288) translate(0 -21)"/>
+     </g>
+     <circle r="12" fill="#ffce65"/><circle r="5" fill="#b13f45"/>
+  </g>
+</defs>
+<rect width="440" height="940" fill="url(#sky)"/>
+<circle cx="253" cy="230" r="210" fill="url(#sun)"/>
+<g fill="#fff" opacity=".42"><ellipse cx="90" cy="147" rx="90" ry="22"/><ellipse cx="123" cy="135" rx="45" ry="27"/><ellipse cx="330" cy="210" rx="100" ry="21"/><ellipse cx="362" cy="192" rx="51" ry="26"/></g>
+<path d="M0 510Q91 496 160 512T327 512T440 508V763H0Z" fill="url(#water)"/>
+<g fill="none" stroke="#f7f9d8" stroke-opacity=".54" stroke-width="4" stroke-linecap="round"><path d="M12 555Q45 548 83 555"/><path d="M350 578q37-13 78 0"/><path d="M18 637q23-6 47 0"/><path d="M331 672q30-6 67 0"/><path d="M49 708q19-6 46 0"/></g>
+<path d="M0 729Q89 703 180 739T440 721V940H0Z" fill="url(#sand)"/>
+<path d="M0 737Q99 713 179 745T440 732" stroke="#fff9db" stroke-width="8" fill="none" opacity=".64"/>
+<g opacity=".27" fill="#c79555"><ellipse cx="68" cy="878" rx="44" ry="4"/><ellipse cx="353" cy="860" rx="60" ry="5"/><ellipse cx="195" cy="925" rx="51" ry="3"/></g>
+<g transform="translate(-5 -4)">
+ <path d="M-19-35Q54 135 13 315" fill="none" stroke="#76502f" stroke-width="29" stroke-linecap="round"/>
+ <path d="M-25-32Q40 129 3 308" fill="none" stroke="#c9934d" stroke-width="10" stroke-linecap="round"/>
+ <g transform="translate(16 25) rotate(5)">
+   <use href="#leaf" transform="rotate(18)"/><use href="#leaf" transform="rotate(66)"/><use href="#leaf" transform="rotate(118)"/>
+   <use href="#leaf" transform="rotate(170)"/><use href="#leaf" transform="rotate(226)"/><use href="#leaf" transform="rotate(285)"/>
+ </g>
+</g>
+<g transform="translate(446 8) scale(-1 1)">
+ <path d="M-22-40Q48 127 13 297" fill="none" stroke="#77502e" stroke-width="28" stroke-linecap="round"/>
+ <path d="M-27-38Q34 120 5 290" fill="none" stroke="#d0a05e" stroke-width="10" stroke-linecap="round"/>
+ <g transform="translate(17 19)">
+  <use href="#leaf" transform="rotate(10)"/><use href="#leaf" transform="rotate(65)"/><use href="#leaf" transform="rotate(122)"/>
+  <use href="#leaf" transform="rotate(180)"/><use href="#leaf" transform="rotate(235)"/><use href="#leaf" transform="rotate(294)"/>
+ </g>
+</g>
+<g transform="translate(-31 734)">
+  <path d="M-10 100Q37 33 94 67Q36 85-10 100Z" fill="#368755"/>
+  <path d="M-8 107Q34 29 97 20Q61 73-8 107Z" fill="#4a9d5a"/>
+  <path d="M-8 110Q48 56 108 111Q42 132-8 110Z" fill="#246e4a"/>
+  <use href="#hibiscus" transform="translate(38 107) scale(1.05)"/>
+  <use href="#hibiscus" transform="translate(89 152) scale(.7) rotate(30)"/>
+</g>
+<g transform="translate(462 720) scale(-1 1)">
+  <path d="M-10 100Q37 33 94 67Q36 85-10 100Z" fill="#368755"/>
+  <path d="M-8 107Q34 29 97 20Q61 73-8 107Z" fill="#4a9d5a"/>
+  <path d="M-8 110Q48 56 108 111Q42 132-8 110Z" fill="#246e4a"/>
+  <use href="#hibiscus" transform="translate(38 107) scale(1.08)"/>
+  <use href="#hibiscus" transform="translate(91 143) scale(.73) rotate(30)"/>
+</g>
+</svg>
