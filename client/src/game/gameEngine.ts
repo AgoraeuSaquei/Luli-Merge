@@ -39,8 +39,8 @@ export class FruitGame {
   readonly particles: Particle[] = [];
   private bodies: FruitBody[] = [];
   private walls: Matter.Body[] = [];
-  private width = 360;
-  private height = 560;
+  private width = GAME_CONFIG.board.width;
+  private height = GAME_CONFIG.board.height;
   private dangerTimer = 0;
   private lastMerge = 0;
   private comboValue = 0;
