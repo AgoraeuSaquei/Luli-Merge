@@ -862,3 +862,14 @@ h1 em, h2 em { color: #F05D5E; font-style: normal; }
   .hud-next .fruit-badge { width: clamp(47px,12vw,66px); height: clamp(47px,12vw,66px); }
   .game-layout .board-wrap { max-width:100%; }
 }
+
+
+/* Cenário vetorial dedicado, com céu, mar, areia, palmeiras e flores. */
+.app-shell:has(.game-layout) {
+  background-color: #86d9dd;
+  background-image: url('../assets/tropical-game-scene.svg');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.game-layout::before,.game-layout::after { display:none; }
