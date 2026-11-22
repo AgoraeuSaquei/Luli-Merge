@@ -758,3 +758,107 @@ h1 em, h2 em { color: #F05D5E; font-style: normal; }
 @media (prefers-reduced-motion: reduce) {
   .missions-button,.hud-stats,.hud-next { transition: none; }
 }
+
+
+/* Ajustes da revisão visual: corrigem conflitos com o CSS legado.
+   Sem alterações nos elementos do canvas ou na lógica de fusão. */
+.game-layout {
+  align-items: stretch;
+  width: min(100%, 600px);
+  max-width: 100%;
+}
+.game-hud {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  align-self: stretch;
+}
+.game-layout .board-wrap {
+  width: 100%;
+  max-width: 520px;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-self: center;
+}
+.game-layout .board {
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  isolation: isolate;
+}
+/* Restaura a identidade visual: a regra de sombra havia apagado o logo original. */
+.game-layout .board::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 48%;
+  left: 50%;
+  width: 79%;
+  height: 45%;
+  bottom: auto;
+  right: auto;
+  border-radius: 0;
+  background: url('../assets/logo_luli_merge.png') center / contain no-repeat;
+  opacity: .23;
+  filter: saturate(.9);
+  transform: translate(-50%,-17%);
+  pointer-events: none;
+}
+/* Moldura com relevo e textura de madeira, mais próxima do conceito. */
+.hud-stats {
+  background:
+    repeating-linear-gradient(2deg,transparent 0 15px,#ffdc9c0b 17px 19px,transparent 21px 29px),
+    linear-gradient(135deg,#98513e,#663427 75%);
+}
+.missions-button {
+  background:
+    radial-gradient(ellipse at 35% 8%,#ffffffa0,transparent 53%),
+    linear-gradient(160deg,#ffe9a1 0%,#ffc654 62%,#e99b37 100%);
+}
+.hud-next {
+  background:
+    radial-gradient(circle at 52% 62%,#fff 0%,#fff7d9 52%,#f4dfb2 100%);
+}
+.app-shell:has(.game-layout) {
+  background:
+    radial-gradient(ellipse at 50% 93%,#f3ca85 0 17%,transparent 57%),
+    radial-gradient(ellipse at 4% 47%,#55b98f77 0 10%,transparent 39%),
+    radial-gradient(ellipse at 98% 47%,#60bb98aa 0 10%,transparent 35%),
+    linear-gradient(180deg,#60c6f0 0%,#a8e6eb 36%,#f8d49a 100%);
+}
+.game-layout::before,.game-layout::after {
+  z-index:-1;
+  opacity:.86;
+}
+.game-layout .board {
+  background:
+    linear-gradient(93deg,#fff9 0%,#fff5 4%,transparent 14%,transparent 85%,#fff8 95%,#fff5 100%),
+    radial-gradient(ellipse at 55% 22%,#fff9 0%,transparent 49%),
+    linear-gradient(155deg,#fce9e1eb 0%,#ffe3d2e8 60%,#fadbc3ec 100%);
+  box-shadow:
+    0 0 0 3px #ffe1a5,
+    0 10px 0 #8c522b,
+    0 18px 22px #67492a47,
+    inset 12px 0 0 #ffffff3f,
+    inset -12px 0 0 #ffffff38,
+    inset 0 0 26px #ffffff99;
+}
+@media (min-width:721px) {
+  .game-layout { width: min(100%, 630px); }
+}
+@media (max-width:600px) {
+  .game-layout { width:100%; }
+  .game-hud {
+    grid-template-columns: minmax(0,1.32fr) minmax(0,.95fr) minmax(0,.77fr);
+    gap: 5px;
+  }
+  .hud-stats { padding: 7px 3px; }
+  .hud-stats strong { font-size: clamp(26px,8vw,41px); }
+  .hud-stats span { font-size: clamp(9px,2.6vw,12px); }
+  .hud-next .fruit-badge { width: clamp(47px,12vw,66px); height: clamp(47px,12vw,66px); }
+  .game-layout .board-wrap { max-width:100%; }
+}
