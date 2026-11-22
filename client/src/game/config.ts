@@ -2,6 +2,9 @@
 // Direcção visual: Picnic Pop — os valores de jogo ficam separados da apresentação.
 
 export const GAME_CONFIG = {
+  // Mundo físico invariável: resolução/zoom alteram só o desenho, não as colisões.
+  board: { width: 390, height: 650 },
+  fruitSizeMultiplier: 1.15,
   physics: {
     gravity: 1.08,
     restitution: 0.16,
