@@ -543,6 +543,61 @@ export default function Home() {
     return () => { cancelAnimationFrame(frameRef.current); window.removeEventListener("resize", resizeCanvas); resizeObserver.disconnect(); unsubscribe(); unmerge(); ability(); };
   }, [screen]);
 
+  // O pote tem mundo físico fixo (390 x 650). Este efeito altera SOMENTE
+  // o tamanho exibido para caber na área realmente visível do navegador iOS.
+  useEffect(() => {
+    if (screen !== "game") return;
+
+    const layout = document.querySelector<HTMLElement>(".game-layout");
+    const hud = layout?.querySelector<HTMLElement>(".game-hud");
+    const heading = layout?.querySelector<HTMLElement>(".board-heading");
+    if (!layout || !hud || !heading) return;
+
+    const fitPlayfield = () => {
+      const styles = window.getComputedStyle(layout);
+      const availableWidth = Math.max(
+        1,
+        layout.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight),
+      );
+      const viewport = window.visualViewport;
+      const visibleHeight = Math.min(window.innerHeight, viewport?.height ?? window.innerHeight);
+      const paddingHeight = parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+      const gap = parseFloat(styles.rowGap) || parseFloat(styles.gap) || 0;
+      const headingHeight = heading.getBoundingClientRect().height;
+      const hudHeight = hud.getBoundingClientRect().height;
+
+      // Reserva espaço para as sombras do frasco e a barra do navegador.
+      const boardHeightBudget = visibleHeight
+        - Math.max(0, layout.getBoundingClientRect().top)
+        - paddingHeight - hudHeight - headingHeight - gap * 2 - 18;
+      const heightConstrainedWidth = boardHeightBudget * GAME_CONFIG.board.width / GAME_CONFIG.board.height;
+
+      // Se não houver espaço razoável (ex.: teclado aberto), a tela pode rolar;
+      // a física e o tamanho interno do pote permanecem imutáveis.
+      const fittedWidth = Math.round(Math.min(
+        GAME_CONFIG.board.width,
+        availableWidth,
+        Math.max(215, heightConstrainedWidth),
+      ));
+      layout.style.setProperty("--playfield-width", fittedWidth + "px");
+    };
+
+    fitPlayfield();
+    window.addEventListener("resize", fitPlayfield);
+    window.addEventListener("orientationchange", fitPlayfield);
+    window.visualViewport?.addEventListener("resize", fitPlayfield);
+    const observer = new ResizeObserver(fitPlayfield);
+    observer.observe(hud);
+    observer.observe(heading);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", fitPlayfield);
+      window.removeEventListener("orientationchange", fitPlayfield);
+      window.visualViewport?.removeEventListener("resize", fitPlayfield);
+      layout.style.removeProperty("--playfield-width");
+    };
+  }, [screen]);
+
   useEffect(() => { gameRef.current?.setAudio(sound); gameRef.current?.setEffectsVolume(effectsVolume); localStorage.setItem("luli-sound", sound ? "on" : "off"); localStorage.setItem("luli-effects-volume", String(effectsVolume)); }, [sound, effectsVolume]);
   const start = () => {
     luckyThresholdNoticeShown.current = false;

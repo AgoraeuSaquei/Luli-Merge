@@ -962,3 +962,75 @@ h1 em, h2 em { color: #F05D5E; font-style: normal; }
   .game-layout .board-heading small { display: block; }
   .game-layout .board::before { top: 12.6153846%; height: 24px; }
 }
+
+
+/* iPhone/Chrome/Safari: visualViewport controla só a escala de apresentação.
+   Nunca usar a largura/altura visual para game.resize() ou colisões. */
+.game-layout .game-hud,
+.game-layout .board-wrap,
+.game-layout .board-heading {
+  width: var(--playfield-width, 100%);
+  max-width: 100%;
+  align-self: center;
+}
+.game-layout .game-hud {
+  flex-shrink: 0;
+  min-width: 0;
+}
+.game-layout .board-wrap {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+.game-layout .board {
+  aspect-ratio: 390 / 650;
+  height: auto;
+  min-height: 0;
+  flex: none;
+  width: 100%;
+}
+.app-shell:has(.game-layout) {
+  /* Permite rolar em landscape ou caso o teclado/barra do navegador ocupe muito espaço. */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+@media (max-width: 600px) {
+  .game-layout {
+    gap: 6px;
+    padding-top: max(5px, env(safe-area-inset-top));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .game-layout .game-hud {
+    flex: 0 0 102px;
+    height: 102px;
+    min-height: 102px;
+    grid-template-columns: minmax(0,1.28fr) minmax(0,1fr) minmax(0,.86fr);
+    gap: 5px;
+  }
+  .game-layout .board-heading {
+    min-height: 18px;
+    margin: 2px 0 3px;
+  }
+  .game-layout .board-heading small {
+    font-size: clamp(9px, 2.25vw, 11px);
+    line-height: 1.25;
+  }
+  .game-layout .hud-stats strong {
+    font-size: clamp(25px, 8vw, 37px);
+  }
+  .game-layout .hud-stats span {
+    font-size: clamp(9px, 2.25vw, 11px);
+  }
+  .game-layout .missions-button b {
+    font-size: clamp(12px, 3vw, 16px);
+  }
+  .game-layout .hud-next .fruit-badge {
+    width: clamp(38px, 11vw, 58px);
+    height: clamp(38px, 11vw, 58px);
+  }
+  .game-layout .board::before {
+    top: 12.6153846%;
+    height: 3.7%;
+    font-size: clamp(9px, 2.5vw, 12px);
+  }
+}
